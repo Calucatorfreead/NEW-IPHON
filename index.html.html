@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcLogin</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #111827, #1e3a8a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .container {
+            width: 350px;
+            background: #111827;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 10px;
+            background: #374151;
+            color: white;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .switch {
+            text-align: center;
+            margin-top: 18px;
+            color: #9ca3af;
+        }
+
+        .switch span {
+            color: #60a5fa;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #f87171;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .calculator {
+            display: none;
+        }
+
+        .display {
+            width: 100%;
+            height: 70px;
+            background: #030712;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            padding: 15px;
+            text-align: right;
+            font-size: 30px;
+            overflow: hidden;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .buttons button {
+            margin: 0;
+            height: 60px;
+            font-size: 20px;
+            background: #374151;
+        }
+
+        .buttons button:hover {
+            background: #4b5563;
+        }
+
+        .operator {
+            background: #2563eb !important;
+        }
+
+        .equal {
+            background: #16a34a !important;
+        }
+
+        .clear {
+            background: #dc2626 !important;
+        }
+
+        .logout {
+            margin-top: 15px;
+            background: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN -->
+    <div class="container" id="loginPage">
+        <h1>Login</h1>
+
+        <input type="text" id="loginUsername" placeholder="Username">
+        <input type="password" id="loginPassword" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+
+        <div class="error" id="loginError"></div>
+
+        <div class="switch">
+            Don't have an account?
+            <span onclick="showRegister()">Register</span>
+        </div>
+    </div>
+
+
+    <!-- REGISTER -->
+    <div class="container" id="registerPage" style="display:none;">
+        <h1>Register</h1>
+
+        <input type="text" id="registerUsername" placeholder="Username">
+        <input type="password" id="registerPassword" placeholder="Password">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+
+        <button onclick="register()">Create Account</button>
+
+        <div class="error" id="registerError"></div>
+
+        <div class="switch">
+            Already have an account?
+            <span onclick="showLogin()">Login</span>
+        </div>
+    </div>
+
+
+    <!-- CALCULATOR -->
+    <div class="container calculator" id="calculatorPage">
+
+        <h1>Calculator</h1>
+
+        <div class="display" id="display">0</div>
+
+        <div class="buttons">
+
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="deleteNumber()">⌫</button>
+            <button onclick="addNumber('%')">%</button>
+            <button class="operator" onclick="addNumber('/')">÷</button>
+
+            <button onclick="addNumber('7')">7</button>
+            <button onclick="addNumber('8')">8</button>
+            <button onclick="addNumber('9')">9</button>
+            <button class="operator" onclick="addNumber('*')">×</button>
+
+            <button onclick="addNumber('4')">4</button>
+            <button onclick="addNumber('5')">5</button>
+            <button onclick="addNumber('6')">6</button>
+            <button class="operator" onclick="addNumber('-')">−</button>
+
+            <button onclick="addNumber('1')">1</button>
+            <button onclick="addNumber('2')">2</button>
+            <button onclick="addNumber('3')">3</button>
+            <button class="operator" onclick="addNumber('+')">+</button>
+
+            <button onclick="addNumber('0')">0</button>
+            <button onclick="addNumber('.')">.</button>
+            <button class="equal" onclick="calculate()">=</button>
+
+        </div>
+
+        <button class="logout" onclick="logout()">Logout</button>
+
+    </div>
+
+
+    <script>
+
+        let username = "";
+        let password = "";
+
+        function showRegister() {
+            document.getElementById("loginPage").style.display = "none";
+            document.getElementById("registerPage").style.display = "block";
+        }
+
+        function showLogin() {
+            document.getElementById("registerPage").style.display = "none";
+            document.getElementById("loginPage").style.display = "block";
+        }
+
+
+        function register() {
+
+            let user = document.getElementById("registerUsername").value;
+            let pass = document.getElementById("registerPassword").value;
+            let confirm = document.getElementById("confirmPassword").value;
+
+            let error = document.getElementById("registerError");
+
+            if (user === "" || pass === "") {
+                error.textContent = "Please fill all fields.";
+                return;
+            }
+
+            if (pass !== confirm) {
+                error.textContent = "Passwords do not match.";
+                return;
+            }
+
+            username = user;
+            password = pass;
+
+            error.style.color = "#4ade80";
+            error.textContent = "Account created successfully!";
+
+            setTimeout(() => {
+                showLogin();
+                error.textContent = "";
+            }, 1000);
+        }
+
+
+        function login() {
+
+            let user = document.getElementById("loginUsername").value;
+            let pass = document.getElementById("loginPassword").value;
+
+            let error = document.getElementById("loginError");
+
+            if (user === username && pass === password && username !== "") {
+
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("calculatorPage").style.display = "block";
+
+            } else {
+
+                error.textContent = "Wrong username or password.";
+
+            }
+        }
+
+
+        function logout() {
+
+            document.getElementById("calculatorPage").style.display = "none";
+            document.getElementById("loginPage").style.display = "block";
+
+            document.getElementById("loginUsername").value = "";
+            document.getElementById("loginPassword").value = "";
+        }
+
+
+        let display = document.getElementById("display");
+
+        function addNumber(value) {
+
+            if (display.textContent === "0") {
+                display.textContent = value;
+            } else {
+                display.textContent += value;
+            }
+        }
+
+
+        function clearDisplay() {
+            display.textContent = "0";
+        }
+
+
+        function deleteNumber() {
+
+            if (display.textContent.length > 1) {
+                display.textContent =
+                    display.textContent.slice(0, -1);
+            } else {
+                display.textContent = "0";
+            }
+        }
+
+
+        function calculate() {
+
+            try {
+
+                let expression = display.textContent;
+
+                let result = Function(
+                    '"use strict"; return (' + expression + ')'
+                )();
+
+                if (!Number.isFinite(result)) {
+                    display.textContent = "Error";
+                    return;
+                }
+
+                display.textContent = result;
+
+            } catch {
+
+                display.textContent = "Error";
+
+            }
+        }
+
+    </script>
+
+</body>
+</html>
